@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kontostand</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<body style="font-family: system-ui; max-width: 520px; margin: 24px auto;">
+  <h1>Kontostand</h1>
+  <label>ID <input id="displayId" placeholder="Deine ID" style="width:100%;padding:8px" /></label>
+  <button id="show" style="margin-top:12px;padding:10px 14px">Anzeigen</button>
+  <div id="msg" style="margin-top:12px"></div>
+<script>
+  const supabase = window.supabase.createClient('YOUR_SUPABASE_URL','YOUR_ANON_KEY');
+  document.getElementById('show').onclick = async () => {
+    const id = document.getElementById('displayId').value.trim();
+    const { data, error } = await supabase.rpc('get_balance_by_display_id', { _display_id: id });
+    if (error) { document.getElementById('msg').textContent = error.message; return; }
+    if (!data || !data[0]) { document.getElementById('msg').textContent = 'ID nicht gefunden.'; return; }
+    const { display_id, name, balance_cents } = data[0];
+    document.getElementById('msg').textContent = `${name||display_id}: ${(balance_cents/100).toFixed(2)} €`;
+  };
+</script>
+</body>
+</html>
