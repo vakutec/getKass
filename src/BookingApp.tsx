@@ -84,26 +84,34 @@ export default function BookingApp() {
   const totalEu = (totalCents / 100).toFixed(2);
   const afterCents = liveBalance !== null && selectedItem ? liveBalance - totalCents : null; // Entnahme zieht ab
 
-  const handleBook = async () => {
-    setError(null);
-    setMessage(null);
-    setBalance(null);
-    const id = displayId.trim();
-    if (!id || !selectedItemId) { setError("Bitte ID und Produkt wählen."); return; }
-    setBooking(true);
-    const { data, error } = await supabase.rpc("book_transaction", {
-      _display_id: id,
-      _item_id: selectedItemId,
-      _qty: qty,
-      _by: "web"
-    });
-    setBooking(false);
-    if (error) { setError(error.message); return; }
-    const bal = data && data[0] ? Number(data[0].new_balance_cents) : null;
-    setBalance(bal);
-    setLiveBalance(bal); // sofort aktualisieren
-    setMessage("Danke! Buchung erfasst.");
-  };
+const handleBook = async () => {
+  setError(null);
+  setMessage(null);
+  setBalance(null);
+  const id = displayId.trim();
+  if (!id || !selectedItemId) { 
+    setError("Bitte ID und Produkt wählen."); 
+    return; 
+  }
+  setBooking(true);
+  const { data, error } = await supabase.rpc("book_transaction", {
+    _display_id: id,
+    _item_id: selectedItemId,
+    _qty: qty,
+    _by: "web"
+  });
+  setBooking(false);
+  if (error) { setError(error.message); return; }
+  const bal = data && data[0] ? Number(data[0].new_balance_cents) : null;
+  setBalance(bal);
+  setLiveBalance(bal); // sofort aktualisieren
+  setMessage("Danke! Buchung erfasst.");
+
+  // ✅ Produktauswahl & Menge zurücksetzen, ID bleibt bestehen
+  setSelectedItemId(null);
+  setQty(1);
+  setQuery("");
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 p-4 md:p-8">
